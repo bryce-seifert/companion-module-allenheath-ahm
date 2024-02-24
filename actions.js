@@ -1,7 +1,4 @@
 export function getActions() {
-	this.chCount = 64
-	this.sceneCount = 500
-
 	let actions = {}
 
 	this.listOptions = (name, qty, offset) => {
@@ -46,7 +43,7 @@ export function getActions() {
 
 	actions['mute_input'] = {
 		name: 'Mute Input',
-		options: this.muteOptions('Mute input', 64, -1),
+		options: this.muteOptions('Mute input', this.inputCount, -1),
 		callback: (action) => {
 			let channel = parseInt(action.options.inputChannel)
 
@@ -59,7 +56,7 @@ export function getActions() {
 
 	actions['mute_zone'] = {
 		name: 'Mute Zone',
-		options: this.muteOptions('Mute zone', 64, -1),
+		options: this.muteOptions('Mute zone', this.zoneCount, -1),
 		callback: (action) => {
 			let channel = parseInt(action.options.inputChannel)
 
@@ -90,7 +87,9 @@ export function getActions() {
 
 	actions['input_to_zone'] = {
 		name: 'Mute input to zone',
-		options: this.muteOptions('Mute Channel', 64, -1).concat(this.listOptions('zone', 64, -1)),
+		options: this.muteOptions('Mute Channel', this.inputCount, -1).concat(
+			this.listOptions('Zone', this.inputCount, -1)
+		),
 		callback: (action) => {
 			let channel = parseInt(action.options.inputChannel)
 			let zoneNumber = parseInt(action.options.number)
@@ -128,7 +127,7 @@ export function getActions() {
 
 	// actions['get_phantom'] = {
 	// 	name: 'Get phantom info',
-	// 	options: this.listOptions('Input', 64, -1),
+	// 	options: this.listOptions('Input', this.inputCount, -1),
 	//callback: (action) => {}
 	// }
 

@@ -16,12 +16,12 @@ class AHMInstance extends InstanceBase {
 		this.updateStatus(InstanceStatus.Connecting)
 
 		this.MIDI_PORT = 51325
-		this.numberOfInputs = 64
-		let numberOfZones = 64
+		this.inputCount = this.config.model ?? 64
+		this.zoneCount = this.config.model ?? 64
 
-		this.inputsMute = this.createArray(this.numberOfInputs)
+		this.inputsMute = this.createArray(this.inputCount)
 		this.inputsToZonesMute = {}
-		this.zonesMute = this.createArray(numberOfZones)
+		this.zonesMute = this.createArray(this.zoneCount)
 		this.initTCP()
 		this.initActions()
 		this.initFeedbacks()
@@ -44,6 +44,17 @@ class AHMInstance extends InstanceBase {
 
 	getConfigFields() {
 		return [
+			{
+				type: 'dropdown',
+				id: 'model',
+				label: 'Device Model',
+				default: 64,
+				choices: [
+					{ id: 16, label: 'AHM-16' },
+					{ id: 32, label: 'AHM-32' },
+					{ id: 64, label: 'AHM-64' },
+				],
+			},
 			{
 				type: 'textinput',
 				id: 'host',
@@ -171,7 +182,7 @@ class AHMInstance extends InstanceBase {
 			this.midiSocket.on('connect', () => {
 				this.log('debug', `MIDI Connected to ${this.config.host}`)
 				this.updateStatus(InstanceStatus.Ok)
-				this.getMuteInfoFromDevice(64)
+				this.getMuteInfoFromDevice(this.config.model ?? 64)
 			})
 		}
 	}
