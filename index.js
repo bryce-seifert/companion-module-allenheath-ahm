@@ -189,7 +189,11 @@ class AHMInstance extends InstanceBase {
 			for (let i = 0; i < buffers.length; i++) {
 				if (this.midiSocket !== undefined) {
 					this.log('debug', `sending ${buffers[i].toString('hex')} via MIDI TCP @${this.config.host}`)
-					this.midiSocket.send(buffers[i])
+					try {
+						this.midiSocket.send(buffers[i])
+					} catch (error) {
+						this.log('error', 'Error sending command: ' + error.message)
+					}
 				}
 			}
 		}
