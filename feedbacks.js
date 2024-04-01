@@ -74,7 +74,6 @@ export function getFeedbacks() {
 			},
 		],
 		callback: (feedback) => {
-			console.log(this.inputsToZonesMute[parseInt(feedback.options.input)])
 			return this.inputsToZonesMute[parseInt(feedback.options.input)]?.[parseInt(feedback.options.zone)] == 1
 		},
 	}
