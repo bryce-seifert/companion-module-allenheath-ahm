@@ -22,7 +22,7 @@ export function getFeedbacks() {
 				default: 1,
 			},
 		],
-		callback: (feedback, bank) => {
+		callback: (feedback) => {
 			return this.inputsMute[parseInt(feedback.options.input) - 1] == 1
 		},
 	}
@@ -37,13 +37,14 @@ export function getFeedbacks() {
 		},
 		options: [
 			{
-				type: 'textinput',
-				label: 'Select zone',
+				type: 'dropdown',
+				label: 'Zone',
 				id: 'zone',
-				default: 1,
+				choices: this.zoneOptions,
+				default: 0,
 			},
 		],
-		callback: (feedback, bank) => {
+		callback: (feedback) => {
 			return this.zonesMute[parseInt(feedback.options.zone) - 1] == 1
 		},
 	}
@@ -58,19 +59,22 @@ export function getFeedbacks() {
 		},
 		options: [
 			{
-				type: 'textinput',
-				label: 'Select input',
+				type: 'dropdown',
+				label: 'Input',
 				id: 'input',
-				default: 1,
+				choices: this.inputOptions,
+				default: 0,
 			},
 			{
-				type: 'textinput',
-				label: 'Select zone',
+				type: 'dropdown',
+				label: 'Zone',
 				id: 'zone',
-				default: 1,
+				choices: this.zoneOptions,
+				default: 0,
 			},
 		],
-		callback: (feedback, bank) => {
+		callback: (feedback) => {
+			console.log(this.inputsToZonesMute[parseInt(feedback.options.input)])
 			return this.inputsToZonesMute[parseInt(feedback.options.input)]?.[parseInt(feedback.options.zone)] == 1
 		},
 	}

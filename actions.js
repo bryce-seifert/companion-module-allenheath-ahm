@@ -56,7 +56,21 @@ export function getActions() {
 
 	actions['mute_zone'] = {
 		name: 'Mute Zone',
-		options: this.muteOptions('Mute zone', this.zoneCount, -1),
+		options: [
+			{
+				type: 'dropdown',
+				label: 'Zone',
+				id: 'inputChannel',
+				choices: this.zoneOptions,
+				default: 0,
+			},
+			{
+				type: 'checkbox',
+				label: 'Mute',
+				id: 'mute',
+				default: true,
+			},
+		],
 		callback: (action) => {
 			let channel = parseInt(action.options.inputChannel)
 
@@ -122,6 +136,35 @@ export function getActions() {
 			}
 
 			this.checkFeedbacks('inputToZoneMute')
+		},
+	}
+
+	actions['sourceSelect'] = {
+		name: 'Select Source',
+		options: [
+			{
+				type: 'dropdown',
+				label: 'Zone',
+				id: 'zone',
+				choices: this.zoneOptions,
+				default: 0,
+			},
+			{
+				type: 'number',
+				label: 'Source',
+				id: 'source',
+				default: 1,
+				min: 1,
+				max: 20,
+			},
+		],
+		callback: (action) => {
+			let zone = parseInt(action.options.zone)
+			let source = parseInt(action.options.source) - 1
+
+			let buffers = [Buffer.from([0xf0, 0x00, 0x00, 0x1a, 0x50, 0x12, 0x01, 0x00, 0x00, 0x08, zone, source, 0xf7])]
+
+			this.sendCommand(buffers)
 		},
 	}
 
