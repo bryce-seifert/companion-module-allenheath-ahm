@@ -1,7 +1,7 @@
 import { InstanceBase, Regex, runEntrypoint, InstanceStatus, TCPHelper } from '@companion-module/base'
 import { getActions } from './actions.js'
 import { getPresets } from './presets.js'
-import { getVariables } from './variables.js'
+import { getVariables, updateVariables } from './variables.js'
 import { getFeedbacks } from './feedbacks.js'
 import UpgradeScripts from './upgrades.js'
 
@@ -14,7 +14,7 @@ class AHMInstance extends InstanceBase {
 		this.config = config
 
 		this.updateStatus(InstanceStatus.Connecting)
-
+		this.updateVariables = updateVariables.bind(this)
 		this.MIDI_PORT = 51325
 		this.inputCount = this.config.model ?? 64
 		this.zoneCount = this.config.model ?? 64
@@ -119,6 +119,8 @@ class AHMInstance extends InstanceBase {
 			await this.sleep(100)
 		}
 		this.initActions()
+		this.initVariables()
+		this.updateVariables()
 		this.initFeedbacks()
 	}
 
@@ -214,10 +216,13 @@ class AHMInstance extends InstanceBase {
 			this.midiSocket = new TCPHelper(this.config.host, this.MIDI_PORT)
 
 			this.midiSocket.on('status_change', (status, message) => {
-				this.updateStatus(status)
+				//this.updateStatus(status)
 			})
 
 			this.midiSocket.on('error', (err) => {
+				if (err.code == 'ECONNREFUSED' || err.code == 'ETIMEDOUT' || err.code == 'ENOTFOUND') {
+					this.updateStatus(InstanceStatus.ConnectionFailure)
+				}
 				this.log('error', 'MIDI error: ' + err.message)
 			})
 
@@ -308,6 +313,7 @@ class AHMInstance extends InstanceBase {
 
 								let input = this.hexToDec(data[10])
 								this.inputOptions.push({ label: `${input + 1}: ${name}`, id: input })
+								this.setVariableValues({ [`zone_${input + 1}_name`]: name })
 								//console.log(this.zoneOptions)
 								break
 							case 3:
