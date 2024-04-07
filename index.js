@@ -30,6 +30,7 @@ class AHMInstance extends InstanceBase {
 		]
 		this.inputsMute = this.createArray(this.inputCount)
 		this.inputsToZonesMute = {}
+		this.sourceSelectors = {}
 		this.zonesMute = this.createArray(this.zoneCount)
 		this.inputOptions = []
 		this.zoneOptions = []
@@ -111,12 +112,6 @@ class AHMInstance extends InstanceBase {
 		// this.getMuteInfo(channel, 11)
 	}
 
-	getSourceSelectorChoices() {
-		let buffers = [Buffer.from([0xf0, 0x00, 0x00, 0x1a, 0x50, 0x12, 0x01, 0x00, 0x01, 0x01, 0x0f, 0x08, 51, 0xf7])]
-
-		this.sendCommand(buffers)
-	}
-
 	async getZoneInfo(count) {
 		for (let index = -1; index < count; index++) {
 			let buffers = [Buffer.from([0xf0, 0x00, 0x00, 0x1a, 0x50, 0x12, 0x01, 0x00, 0x01, 0x09, index, 0xf7])]
@@ -161,6 +156,16 @@ class AHMInstance extends InstanceBase {
 				this.midiSocket.send(cmd.buffers[i])
 			}
 		}
+	}
+
+	async getSourceSelectorInfo(count) {
+		for (let index = -1; index < count; index++) {
+			let buffers = [Buffer.from([0xf0, 0x00, 0x00, 0x1a, 0x50, 0x12, 0x01, 0x00, 0x01, 0x01, 0x0f, 0x08, index, 0xf7])]
+			this.sendCommand(buffers)
+			await this.sleep(100)
+		}
+		this.initActions()
+		this.initFeedbacks()
 	}
 
 	createArray(size, extraArrayLength) {
@@ -238,7 +243,7 @@ class AHMInstance extends InstanceBase {
 		this.getMuteInfoFromDevice(channelCount)
 		this.getZoneInfo(channelCount)
 		this.getInputInfo(channelCount)
-		//this.getSourceSelectorChoices()
+		this.getSourceSelectorInfo(channelCount)
 	}
 
 	processIncomingData(data) {
@@ -267,6 +272,26 @@ class AHMInstance extends InstanceBase {
 				switch (data[8]) {
 					case 0:
 						switch (data[9]) {
+							case 8:
+								//Get Source Selector Info
+								let zone = this.hexToDec(data[10])
+
+								if (this.sourceSelectors[zone]) {
+									//If source selector already created, just update the current source
+									//Note: data structure of update messages is slightly different than the initial data from Get Source Selector
+									this.sourceSelectors[zone].current = data[11]
+								} else {
+									//Don't log data is source selector is not in use
+									if (data[11] > 0) {
+										this.sourceSelectors[zone] = {
+											count: data[11],
+											current: data[12],
+										}
+									}
+								}
+								this.checkFeedbacks('sourceSelected')
+
+								break
 							case 10:
 								//Get Input Name
 								let name = new Buffer.from([

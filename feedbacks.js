@@ -78,5 +78,35 @@ export function getFeedbacks() {
 		},
 	}
 
+	feedbacks['sourceSelected'] = {
+		type: 'boolean',
+		name: 'Source is selected in the Source Selector',
+		description: 'When a source is selected in the Source Selector change style',
+		defaultStyle: {
+			color: ColorWhite,
+			bgcolor: ColorRed,
+		},
+		options: [
+			{
+				type: 'dropdown',
+				label: 'Zone',
+				id: 'zone',
+				choices: this.zoneOptions,
+				default: 0,
+			},
+			{
+				type: 'number',
+				label: 'Source Number',
+				id: 'source',
+				default: 1,
+				min: 1,
+				max: 20,
+			},
+		],
+		callback: (feedback) => {
+			return this.sourceSelectors[parseInt(feedback.options.zone)]?.current == parseInt(feedback.options.source) - 1
+		},
+	}
+
 	return feedbacks
 }

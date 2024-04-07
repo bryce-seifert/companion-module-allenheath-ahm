@@ -151,7 +151,7 @@ export function getActions() {
 			},
 			{
 				type: 'number',
-				label: 'Source',
+				label: 'Source Number',
 				id: 'source',
 				default: 1,
 				min: 1,
